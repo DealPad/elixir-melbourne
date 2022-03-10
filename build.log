@@ -1,0 +1,28 @@
+#1 [internal] load remote build context
+#1 DONE 17.0s
+
+#1 [internal] load remote build context
+#1 CACHED
+
+#2 copy /context /
+#2 CACHED
+
+#4 [internal] load metadata for docker.io/hexpm/elixir:1.13.3-erlang-24.2.1-debian-bullseye-20210902-slim
+#4 DONE 1.0s
+
+#3 [internal] load metadata for docker.io/library/debian:bullseye-20210902-slim
+#3 DONE 1.0s
+#1 [internal] load remote build context
+#1 DONE 16.1s
+
+#1 [internal] load remote build context
+#1 CACHED
+
+#2 copy /context /
+#2 CACHED
+
+#4 [internal] load metadata for docker.io/hexpm/elixir:1.13.3-erlang-24.2.1-debian-bullseye-20210902-slim
+#4 ...
+
+#3 [internal] load metadata for docker.io/library/debian:bullseye-20210902-slim
+#3 DONE 1.0s

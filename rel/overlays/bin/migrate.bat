@@ -1,0 +1,1 @@
+call "%~dp0\elixir_melbourne" eval ElixirMelbourne.Release.migrate

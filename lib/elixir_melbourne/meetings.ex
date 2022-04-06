@@ -37,6 +37,12 @@ defmodule ElixirMelbourne.Meetings do
   """
   def get_question!(id), do: Repo.get!(Question, id)
 
+  def room_id_exists?(id) do
+    Question
+    |> where([question], question.room_id == ^id)
+    |> Repo.exists?()
+  end
+
   @doc """
   Creates a question.
 

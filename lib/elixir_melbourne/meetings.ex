@@ -21,6 +21,13 @@ defmodule ElixirMelbourne.Meetings do
     Repo.all(Question)
   end
 
+  def list_questions_by_room_id(room_id) do
+    Question
+    |> where([question], question.room_id == ^room_id)
+    |> preload([:attendee])
+    |> Repo.all()
+  end
+
   @doc """
   Gets a single question.
 

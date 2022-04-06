@@ -11,7 +11,7 @@ defmodule ElixirMelbourne.Meetings.Question do
   schema "meetings_questions" do
     field(:content, :string)
     field(:room_id, :string)
-    belongs_to(:attebdee, ElixirMelbourne.Meetings.Attendee, foreign_key: :attendee_id)
+    belongs_to(:attendee, ElixirMelbourne.Meetings.Attendee, foreign_key: :attendee_id)
     timestamps()
   end
 

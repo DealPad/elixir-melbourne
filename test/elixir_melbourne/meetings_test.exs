@@ -54,4 +54,56 @@ defmodule ElixirMelbourne.MeetingsTest do
       assert %Ecto.Changeset{} = Meetings.change_question(question)
     end
   end
+
+  describe "meetings_attendees" do
+    alias ElixirMelbourne.Meetings.Attendee
+
+    import ElixirMelbourne.MeetingsFixtures
+
+    @invalid_attrs %{}
+
+    test "list_meetings_attendees/0 returns all meetings_attendees" do
+      attendee = attendee_fixture()
+      assert Meetings.list_meetings_attendees() == [attendee]
+    end
+
+    test "get_attendee!/1 returns the attendee with given id" do
+      attendee = attendee_fixture()
+      assert Meetings.get_attendee!(attendee.id) == attendee
+    end
+
+    test "create_attendee/1 with valid data creates a attendee" do
+      valid_attrs = %{}
+
+      assert {:ok, %Attendee{} = attendee} = Meetings.create_attendee(valid_attrs)
+    end
+
+    test "create_attendee/1 with invalid data returns error changeset" do
+      assert {:error, %Ecto.Changeset{}} = Meetings.create_attendee(@invalid_attrs)
+    end
+
+    test "update_attendee/2 with valid data updates the attendee" do
+      attendee = attendee_fixture()
+      update_attrs = %{}
+
+      assert {:ok, %Attendee{} = attendee} = Meetings.update_attendee(attendee, update_attrs)
+    end
+
+    test "update_attendee/2 with invalid data returns error changeset" do
+      attendee = attendee_fixture()
+      assert {:error, %Ecto.Changeset{}} = Meetings.update_attendee(attendee, @invalid_attrs)
+      assert attendee == Meetings.get_attendee!(attendee.id)
+    end
+
+    test "delete_attendee/1 deletes the attendee" do
+      attendee = attendee_fixture()
+      assert {:ok, %Attendee{}} = Meetings.delete_attendee(attendee)
+      assert_raise Ecto.NoResultsError, fn -> Meetings.get_attendee!(attendee.id) end
+    end
+
+    test "change_attendee/1 returns a attendee changeset" do
+      attendee = attendee_fixture()
+      assert %Ecto.Changeset{} = Meetings.change_attendee(attendee)
+    end
+  end
 end

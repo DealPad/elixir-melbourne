@@ -15,7 +15,8 @@ defmodule ElixirMelbourne.Application do
       # Start the PubSub system
       {Phoenix.PubSub, name: ElixirMelbourne.PubSub},
       # Start the Endpoint (http/https)
-      ElixirMelbourneWeb.Endpoint
+      ElixirMelbourneWeb.Endpoint,
+      ElixirMelbourneWeb.Presence
       # Start a worker by calling: ElixirMelbourne.Worker.start_link(arg)
       # {ElixirMelbourne.Worker, arg}
     ]

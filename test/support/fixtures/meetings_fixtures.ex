@@ -17,4 +17,18 @@ defmodule ElixirMelbourne.MeetingsFixtures do
 
     question
   end
+
+  @doc """
+  Generate a attendee.
+  """
+  def attendee_fixture(attrs \\ %{}) do
+    {:ok, attendee} =
+      attrs
+      |> Enum.into(%{
+
+      })
+      |> ElixirMelbourne.Meetings.create_attendee()
+
+    attendee
+  end
 end

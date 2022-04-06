@@ -37,7 +37,6 @@ defmodule ElixirMelbourneWeb.Router do
 
     scope "/" do
       pipe_through :browser
-      live "/room/:id", RoomLive.Index, :index
       live_dashboard "/dashboard", metrics: ElixirMelbourneWeb.Telemetry
     end
   end

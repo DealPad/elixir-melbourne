@@ -4,16 +4,21 @@ defmodule ElixirMelbourneWeb.Meetings.View do
   """
   use ElixirMelbourneWeb, :live_view
 
-
   def handle_event("create_room", _params, socket) do
     # Generate a 6 digit room number
     room_id = generate_room_id()
+
     {:noreply,
-    push_redirect(socket, to: Routes.live_path(socket, ElixirMelbourneWeb.Meetings.Questions, room_id))}
+     push_redirect(socket,
+       to: Routes.live_path(socket, ElixirMelbourneWeb.Meetings.Questions, room_id)
+     )}
   end
 
   def handle_event("join_room", %{"room_id" => room_id}, socket) do
-    {:noreply, push_redirect(socket, to: Routes.live_path(socket, ElixirMelbourneWeb.Meetings.Questions, room_id))}
+    {:noreply,
+     push_redirect(socket,
+       to: Routes.live_path(socket, ElixirMelbourneWeb.Meetings.Questions, room_id)
+     )}
   end
 
   def render(assigns) do
@@ -28,6 +33,7 @@ defmodule ElixirMelbourneWeb.Meetings.View do
 
   defp generate_room_id() do
     room_id = ElixirMelbourne.Helper.Randomizer.randomizer(6)
+
     if ElixirMelbourne.Meetings.room_id_exists?(room_id) do
       generate_room_id()
     else

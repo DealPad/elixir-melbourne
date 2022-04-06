@@ -10,9 +10,7 @@ defmodule ElixirMelbourne.MeetingsFixtures do
   def question_fixture(attrs \\ %{}) do
     {:ok, question} =
       attrs
-      |> Enum.into(%{
-
-      })
+      |> Enum.into(%{})
       |> ElixirMelbourne.Meetings.create_question()
 
     question
@@ -24,9 +22,7 @@ defmodule ElixirMelbourne.MeetingsFixtures do
   def attendee_fixture(attrs \\ %{}) do
     {:ok, attendee} =
       attrs
-      |> Enum.into(%{
-
-      })
+      |> Enum.into(%{})
       |> ElixirMelbourne.Meetings.create_attendee()
 
     attendee

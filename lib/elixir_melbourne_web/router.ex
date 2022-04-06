@@ -12,6 +12,7 @@ defmodule ElixirMelbourneWeb.Router do
 
   pipeline :api do
     plug :accepts, ["json"]
+    plug :fetch_session
   end
 
   scope "/", ElixirMelbourneWeb do
@@ -19,6 +20,12 @@ defmodule ElixirMelbourneWeb.Router do
     live "/meetings/:meeting_id", Meetings.View
     live "/meetings/questions/:room_id", Meetings.Questions
     get "/", PageController, :index
+  end
+
+  scope "/api", ElixirMelbourneWeb do
+    pipe_through :api
+
+    post "/session", SessionController, :set
   end
 
   # Other scopes may use custom stacks.

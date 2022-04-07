@@ -13,7 +13,7 @@ defmodule ElixirMelbourneWeb.Meetings.Questions do
 
     {:ok,
      socket
-     |> assign(:active_link, "home")
+     |> assign(:active_link, "meetings")
      |> assign(:attendee_id, Map.get(params, "attendee_id", nil))
      |> assign(:changeset, Question.changeset(%Question{}, %{}))
      |> assign(:questions, Meetings.list_questions_by_room_id(room_id))

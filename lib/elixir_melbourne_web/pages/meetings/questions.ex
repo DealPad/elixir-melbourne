@@ -13,14 +13,19 @@ defmodule ElixirMelbourneWeb.Meetings.Questions do
 
     {:ok,
      socket
-     |> assign(:room_id, room_id)
+     |> assign(:active_link, "home")
      |> assign(:attendee_id, Map.get(params, "attendee_id", nil))
+     |> assign(:changeset, Question.changeset(%Question{}, %{}))
      |> assign(:questions, Meetings.list_questions_by_room_id(room_id))
-     |> assign(:changeset, Question.changeset(%Question{}, %{}))}
+     |> assign(:room_id, room_id)}
   end
 
   def handle_event("submit-question", %{"question" => question}, socket) do
-    case Meetings.create_question(question) |> IO.inspect() do
+    case question
+         |> Map.put("attendee_id", socket.assigns.attendee_id)
+         |> Map.put("room_id", socket.assigns.room_id)
+         |> Meetings.create_question()
+         |> IO.inspect() do
       {:ok, %Question{room_id: room_id}} ->
         Phoenix.PubSub.broadcast(ElixirMelbourne.PubSub, "room: #{room_id}", :new_question)
         {:noreply, socket |> assign(:changeset, Question.changeset(%Question{}, %{}))}
@@ -40,26 +45,52 @@ defmodule ElixirMelbourneWeb.Meetings.Questions do
 
   def render(assigns) do
     ~H"""
-      Welcome to room code: <%= @room_id %> (enter this code to invite other to join or share the link directly)
-      <%= if !@attendee_id do %>
-        <form phx-hook="SetSession" id="saveUserNameForm">
-          <input name="username">
-          <button type="submit">Save Username</button>
-        </form>
-      <% end %>
-      <.form let={f} for={@changeset} phx-submit="submit-question">
-        <%= label f, :your_question, class: "block mb-1 typography-button" %>
-        <%= text_input f, :content, phx_debounce: "blur", class: "input" %>
-        <%= hidden_input f, :room_id, value: @room_id %>
-        <%= hidden_input f, :attendee_id, value: @attendee_id %>
-        <button type="submit">Submit</button>
-      </.form>
-      <%= for question <- @questions do %>
-        <div>
-          <%= question.content %>
-          <%= question.attendee.username %>
+      <div class="space-y-8">
+        <div class="space-y-1">
+          <p class="text-2xl font-semibold">
+            Welcome to room code: <%= @room_id %>!
+          </p>
+          <p>
+            You can share this code or this page link to invite others.
+          </p>
         </div>
-      <% end %>
+        <%= if !@attendee_id do %>
+          <form phx-hook="SetSession" id="saveUserNameForm">
+            <div class="flex items-end gap-4">
+              <div>
+                <label for="username" class="block text-sm font-medium">Username</label>
+                <div class="mt-1">
+                  <input type="text" name="username" id="username" class="input" />
+                </div>
+              </div>
+              <button class="btn" type="submit">Save</button>
+            </div>
+          </form>
+        <% end %>
+        <.form let={f} for={@changeset} phx-submit="submit-question" class="border border-gray-200 dark:border-gray-600 rounded-lg p-4">
+          <div class="space-y-6">
+            <p class="text-xl font-medium">
+              Enter your question
+            </p>
+            <div class="flex gap-4">
+              <%= text_input f, :content, phx_debounce: "blur", class: "input" %>
+              <button class="btn" type="submit">Submit</button>
+            </div>
+          </div>
+        </.form>
+        <div class="space-y-4">
+          <%= for question <- @questions do %>
+            <div class="bg-gray-200 dark:bg-gray-600 rounded-lg p-4 space-y-1">
+              <p class="font-medium">
+                <%= question.attendee.username %>
+              </p>
+              <p class="text-gray-600 dark:text-gray-200 text-sm">
+                <%= question.content %>
+              </p>
+            </div>
+          <% end %>
+        </div>
+      </div>
     """
   end
 end

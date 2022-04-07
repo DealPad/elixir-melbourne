@@ -1,6 +1,6 @@
 // We import the CSS which is extracted to its own file by esbuild.
 // Remove this line if you add a your own CSS build pipeline (e.g postcss).
-import "../css/app.css"
+// import "../css/app.css"
 
 // If you want to use Phoenix channels, run `mix help phx.gen.channel`
 // to get started and then uncomment the line below.
@@ -20,46 +20,60 @@ import "../css/app.css"
 //
 
 // Include phoenix_html to handle method=PUT/DELETE in forms and buttons.
-import "phoenix_html"
+import 'phoenix_html';
 // Establish Phoenix Socket and LiveView configuration.
-import {Socket} from "phoenix"
-import {LiveSocket} from "phoenix_live_view"
-import topbar from "../vendor/topbar"
+import { Socket } from 'phoenix';
+import { LiveSocket } from 'phoenix_live_view';
+import topbar from '../vendor/topbar';
 
-let Hooks = {}
+let Hooks = {};
 Hooks.SetSession = {
   DEBOUNCE_MS: 200,
 
   // Called when a LiveView is mounted, if it includes an element that uses this hook.
   mounted() {
     // `this.el` is the form.
-    this.el.addEventListener("input", (e) => {
-      clearTimeout(this.timeout)
+    this.el.addEventListener('input', (e) => {
+      clearTimeout(this.timeout);
       this.timeout = setTimeout(() => {
         // Ajax request to update session.
-        fetch(`/api/session?${e.target.name}=${encodeURIComponent(e.target.value)}`, { method: "post" })
+        fetch(
+          `/api/session?${e.target.name}=${encodeURIComponent(e.target.value)}`,
+          { method: 'post' },
+        );
 
         // Optionally, include this so other LiveViews can be notified of changes.
-        this.pushEventTo(".phx-hook-subscribe-to-session", "updated_session_data", [e.target.name, e.target.value])
-      }, this.DEBOUNCE_MS)
-    })
+        this.pushEventTo(
+          '.phx-hook-subscribe-to-session',
+          'updated_session_data',
+          [e.target.name, e.target.value],
+        );
+      }, this.DEBOUNCE_MS);
+    });
   },
- }
-let csrfToken = document.querySelector("meta[name='csrf-token']").getAttribute("content")
-let liveSocket = new LiveSocket("/live", Socket, {hooks: Hooks, params: {_csrf_token: csrfToken}})
+};
+let csrfToken = document
+  .querySelector("meta[name='csrf-token']")
+  .getAttribute('content');
+let liveSocket = new LiveSocket('/live', Socket, {
+  hooks: Hooks,
+  params: { _csrf_token: csrfToken },
+});
 
 // Show progress bar on live navigation and form submits
-topbar.config({barColors: {0: "#29d"}, shadowColor: "rgba(0, 0, 0, .3)"})
-window.addEventListener("phx:page-loading-start", info => topbar.show())
-window.addEventListener("phx:page-loading-stop", info => topbar.hide())
-
+topbar.config({ barColors: { 0: '#5221C3' }, shadowColor: 'rgba(0, 0, 0, .3)' });
+window.addEventListener('phx:page-loading-start', (info) => topbar.show());
+window.addEventListener('phx:page-loading-stop', (info) => topbar.hide());
 
 // connect if there are any LiveViews on the page
-liveSocket.connect()
+liveSocket.connect();
 
 // expose liveSocket on window for web console debug logs and latency simulation:
 // >> liveSocket.enableDebug()
 // >> liveSocket.enableLatencySim(1000)  // enabled for duration of browser session
 // >> liveSocket.disableLatencySim()
-window.liveSocket = liveSocket
+window.liveSocket = liveSocket;
 
+window.addEventListener('toggle-dark-mode', (event) => {
+  document.documentElement.classList.toggle('dark');
+});

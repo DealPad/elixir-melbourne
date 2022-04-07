@@ -17,9 +17,10 @@ defmodule ElixirMelbourneWeb.Router do
 
   scope "/", ElixirMelbourneWeb do
     pipe_through :browser
+
+    live "/", HomePage
     live "/meetings/:meeting_id", Meetings.View
     live "/meetings/questions/:room_id", Meetings.Questions
-    get "/", PageController, :index
   end
 
   scope "/api", ElixirMelbourneWeb do

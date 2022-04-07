@@ -1,11 +1,77 @@
-<main class="container">
-  <p class="alert alert-info" role="alert"
-    phx-click="lv:clear-flash"
-    phx-value-key="info"><%= live_flash(@flash, :info) %></p>
+<header class="fixed top-0 left-0 right-0 z-10 bg-gray-50 bg-opacity-60 backdrop-filter backdrop-blur-lg backdrop-saturate-200 dark:bg-cod-gray dark:bg-opacity-60">
+  <div class="flex items-center justify-between max-w-3xl px-8 py-6 mx-auto">
+    <ol class="flex items-center space-x-16">
+      <li>
+        <%= live_redirect "Home", class: "#{if Map.get(assigns, :active_link) == "home", do: "nav-link nav-link--active", else: "nav-link"}", to: Routes.live_path(@socket, ElixirMelbourneWeb.HomePage) %>
+      </li>
+      <li>
+        <%= live_redirect "Meetings", class: "#{if Map.get(assigns, :active_link) == "meetings", do: "nav-link nav-link--active", else: "nav-link"}", to: Routes.live_path(@socket, ElixirMelbourneWeb.Meetings.View, "1") %>
+      </li>
+    </ol>
+    <button phx-click={Phoenix.LiveView.JS.dispatch("toggle-dark-mode")} class="flex items-center justify-center transition-all bg-gray-200 rounded-lg w-9 h-9 dark:bg-gray-600 hover:ring-2 ring-gray-400">
+      <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-gray-600 dark:text-gray-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+      </svg>
+    </button>
+  </div>
+</header>
 
-  <p class="alert alert-danger" role="alert"
-    phx-click="lv:clear-flash"
-    phx-value-key="error"><%= live_flash(@flash, :error) %></p>
+<div class="h-[84px]" />
 
+<main class="max-w-3xl px-8 py-6 mx-auto">
   <%= @inner_content %>
 </main>
+
+<div class={"fixed top-4 inset-x-4 z-50 transition-transform duration-1000 #{if live_flash(@flash, :info), do: "translate-y-0", else: "-translate-y-[1000px]"}"}>
+  <div class="rounded-md bg-green-50 p-4 shadow-lg max-w-screen-sm mx-auto">
+    <div class="flex">
+      <div class="flex-shrink-0">
+        <svg class="h-5 w-5 text-green-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+          <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+        </svg>
+      </div>
+      <div class="ml-3">
+        <p class="text-sm font-medium text-green-800">
+          <%= live_flash(@flash, :info) %>
+        </p>
+      </div>
+      <div class="ml-auto pl-3">
+        <div class="-mx-1.5 -my-1.5">
+          <button phx-click="lv:clear-flash" phx-value-key="info" type="button" class="inline-flex bg-green-50 rounded-md p-1.5 text-green-500 hover:bg-green-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-green-50 focus:ring-green-600">
+            <span class="sr-only">Dismiss</span>
+            <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+              <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
+            </svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class={"fixed top-4 inset-x-4 z-50 transition-transform duration-1000 #{if live_flash(@flash, :error), do: "translate-y-0", else: "-translate-y-[1000px]"}"}>
+  <div class="rounded-md bg-red-50 p-4 shadow-lg max-w-screen-sm mx-auto">
+    <div class="flex">
+      <div class="flex-shrink-0">
+        <svg class="h-5 w-5 text-red-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+          <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+        </svg>
+      </div>
+      <div class="ml-3">
+        <p class="text-sm font-medium text-red-800">
+          <%= live_flash(@flash, :error) %>
+        </p>
+      </div>
+      <div class="ml-auto pl-3">
+        <div class="-mx-1.5 -my-1.5">
+          <button phx-click="lv:clear-flash" phx-value-key="error" type="button" class="inline-flex bg-red-50 rounded-md p-1.5 text-red-500 hover:bg-red-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-red-50 focus:ring-red-600">
+            <span class="sr-only">Dismiss</span>
+            <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+              <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
+            </svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

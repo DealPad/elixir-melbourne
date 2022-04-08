@@ -42,8 +42,6 @@ RUN mkdir config
 COPY config/config.exs config/${MIX_ENV}.exs config/
 RUN mix deps.compile
 
-COPY priv priv
-
 # note: if your project uses a tool like https://purgecss.com/,
 # which customizes asset compilation based on what it finds in
 # your Elixir templates, you will need to move the asset compilation
@@ -52,6 +50,8 @@ COPY assets assets
 
 # compile assets
 RUN mix assets.deploy
+
+COPY priv priv
 
 # Compile the release
 COPY lib lib

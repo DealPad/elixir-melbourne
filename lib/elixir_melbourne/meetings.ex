@@ -145,6 +145,7 @@ defmodule ElixirMelbourne.Meetings do
 
   """
   def get_attendee!(id), do: Repo.get!(Attendee, id)
+  def maybe_get_attendee(id), do: Repo.get(Attendee, id)
 
   @doc """
   Creates a attendee.

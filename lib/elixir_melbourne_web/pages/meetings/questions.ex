@@ -4,28 +4,42 @@ defmodule ElixirMelbourneWeb.Meetings.Questions do
   """
   use ElixirMelbourneWeb, :live_view
   alias ElixirMelbourne.Meetings.Question
+  alias ElixirMelbourne.Meetings.Attendee
   alias ElixirMelbourne.Meetings
+  alias ElixirMelbourneWeb.Presence
 
-  def mount(%{"room_id" => room_id}, params, socket) do
-    if connected?(socket) do
-      Phoenix.PubSub.subscribe(ElixirMelbourne.PubSub, "room: #{room_id}")
+  def mount(%{"room_id" => room_id}, params, %{id: socket_id} = socket) do
+    topic = get_room_topic(room_id)
+    Phoenix.PubSub.subscribe(ElixirMelbourne.PubSub, topic)
+
+    maybe_attendee_id = Map.get(params, "attendee_id", nil)
+
+    if maybe_attendee_id do
+      attendee_id = maybe_attendee_id
+
+      Presence.track(
+        self(),
+        topic,
+        attendee_id,
+        %{}
+      )
     end
 
     {:ok,
      socket
      |> assign(:active_link, "meetings")
-     |> assign(:attendee_id, Map.get(params, "attendee_id", nil))
+     |> assign(:maybe_attendee_id, maybe_attendee_id)
      |> assign(:changeset, Question.changeset(%Question{}, %{}))
      |> assign(:questions, Meetings.list_questions_by_room_id(room_id))
-     |> assign(:room_id, room_id)}
+     |> assign(:room_id, room_id)
+     |> assign(:attendees, [])}
   end
 
   def handle_event("submit-question", %{"question" => question}, socket) do
     case question
          |> Map.put("attendee_id", socket.assigns.attendee_id)
          |> Map.put("room_id", socket.assigns.room_id)
-         |> Meetings.create_question()
-         |> IO.inspect() do
+         |> Meetings.create_question() do
       {:ok, %Question{room_id: room_id}} ->
         Phoenix.PubSub.broadcast(ElixirMelbourne.PubSub, "room: #{room_id}", :new_question)
         {:noreply, socket |> assign(:changeset, Question.changeset(%Question{}, %{}))}
@@ -35,6 +49,20 @@ defmodule ElixirMelbourneWeb.Meetings.Questions do
     end
   end
 
+  def handle_info(
+        %{event: "presence_diff"},
+        %{assigns: %{room_id: room_id}} = socket
+      ) do
+    attendees =
+      room_id
+      |> get_room_topic()
+      |> Presence.list()
+      |> Map.keys()
+      |> resolve_attendees_from_ids([])
+
+    {:noreply, socket |> assign(:attendees, attendees)}
+  end
+
   def handle_info(:new_question, %{assigns: %{room_id: room_id}} = socket) do
     {:noreply,
      socket
@@ -42,6 +70,20 @@ defmodule ElixirMelbourneWeb.Meetings.Questions do
        questions: Meetings.list_questions_by_room_id(room_id)
      })}
   end
+
+  defp get_room_topic(room_id), do: "room: #{room_id}"
+
+  defp resolve_attendees_from_ids([attendee_id | attendee_ids], results) do
+    case Meetings.maybe_get_attendee(attendee_id) do
+      %Attendee{} = attendee ->
+        resolve_attendees_from_ids(attendee_ids, [attendee] ++ results)
+
+      _ ->
+        resolve_attendees_from_ids(attendee_ids, results)
+    end
+  end
+
+  defp resolve_attendees_from_ids(_, results), do: results
 
   def render(assigns) do
     ~H"""
@@ -54,7 +96,7 @@ defmodule ElixirMelbourneWeb.Meetings.Questions do
             You can share this code or this page link to invite others.
           </p>
         </div>
-        <%= if !@attendee_id do %>
+        <%= if !@maybe_attendee_id do %>
           <form phx-hook="SetSession" id="saveUserNameForm">
             <div class="flex items-end gap-4">
               <div>
@@ -91,6 +133,10 @@ defmodule ElixirMelbourneWeb.Meetings.Questions do
           <% end %>
         </div>
       </div>
+      <h3> People who is in the room: </h3>
+      <%= for attendee <- @attendees do %>
+        <p><%= attendee.username %></p>
+      <% end %>
     """
   end
 end

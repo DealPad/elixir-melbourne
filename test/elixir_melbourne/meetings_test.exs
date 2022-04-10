@@ -106,4 +106,60 @@ defmodule ElixirMelbourne.MeetingsTest do
       assert %Ecto.Changeset{} = Meetings.change_attendee(attendee)
     end
   end
+
+  describe "meetings_questions_votes" do
+    alias ElixirMelbourne.Meetings.QuestionVote
+
+    import ElixirMelbourne.MeetingsFixtures
+
+    @invalid_attrs %{}
+
+    test "list_meetings_questions_votes/0 returns all meetings_questions_votes" do
+      question_vote = question_vote_fixture()
+      assert Meetings.list_meetings_questions_votes() == [question_vote]
+    end
+
+    test "get_question_vote!/1 returns the question_vote with given id" do
+      question_vote = question_vote_fixture()
+      assert Meetings.get_question_vote!(question_vote.id) == question_vote
+    end
+
+    test "create_question_vote/1 with valid data creates a question_vote" do
+      valid_attrs = %{}
+
+      assert {:ok, %QuestionVote{} = question_vote} = Meetings.create_question_vote(valid_attrs)
+    end
+
+    test "create_question_vote/1 with invalid data returns error changeset" do
+      assert {:error, %Ecto.Changeset{}} = Meetings.create_question_vote(@invalid_attrs)
+    end
+
+    test "update_question_vote/2 with valid data updates the question_vote" do
+      question_vote = question_vote_fixture()
+      update_attrs = %{}
+
+      assert {:ok, %QuestionVote{} = question_vote} =
+               Meetings.update_question_vote(question_vote, update_attrs)
+    end
+
+    test "update_question_vote/2 with invalid data returns error changeset" do
+      question_vote = question_vote_fixture()
+
+      assert {:error, %Ecto.Changeset{}} =
+               Meetings.update_question_vote(question_vote, @invalid_attrs)
+
+      assert question_vote == Meetings.get_question_vote!(question_vote.id)
+    end
+
+    test "delete_question_vote/1 deletes the question_vote" do
+      question_vote = question_vote_fixture()
+      assert {:ok, %QuestionVote{}} = Meetings.delete_question_vote(question_vote)
+      assert_raise Ecto.NoResultsError, fn -> Meetings.get_question_vote!(question_vote.id) end
+    end
+
+    test "change_question_vote/1 returns a question_vote changeset" do
+      question_vote = question_vote_fixture()
+      assert %Ecto.Changeset{} = Meetings.change_question_vote(question_vote)
+    end
+  end
 end

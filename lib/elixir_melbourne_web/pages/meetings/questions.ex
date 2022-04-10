@@ -3,12 +3,11 @@ defmodule ElixirMelbourneWeb.Meetings.Questions do
     Page for QA during meetup
   """
   use ElixirMelbourneWeb, :live_view
-  alias ElixirMelbourne.Meetings.Question
-  alias ElixirMelbourne.Meetings.Attendee
+  alias ElixirMelbourne.Meetings.{Attendee, Question, QuestionVote}
   alias ElixirMelbourne.Meetings
   alias ElixirMelbourneWeb.Presence
 
-  def mount(%{"room_id" => room_id}, params, %{id: socket_id} = socket) do
+  def mount(%{"room_id" => room_id}, params, socket) do
     topic = get_room_topic(room_id)
     Phoenix.PubSub.subscribe(ElixirMelbourne.PubSub, topic)
 
@@ -35,17 +34,74 @@ defmodule ElixirMelbourneWeb.Meetings.Questions do
      |> assign(:attendees, [])}
   end
 
-  def handle_event("submit-question", %{"question" => question}, socket) do
+  def handle_event("submit", %{"question" => question}, socket) do
     case question
-         |> Map.put("attendee_id", socket.assigns.attendee_id)
+         |> Map.put("attendee_id", socket.assigns.maybe_attendee_id)
          |> Map.put("room_id", socket.assigns.room_id)
          |> Meetings.create_question() do
       {:ok, %Question{room_id: room_id}} ->
-        Phoenix.PubSub.broadcast(ElixirMelbourne.PubSub, "room: #{room_id}", :new_question)
+        Phoenix.PubSub.broadcast(ElixirMelbourne.PubSub, "room: #{room_id}", :question_updated)
         {:noreply, socket |> assign(:changeset, Question.changeset(%Question{}, %{}))}
 
       _ ->
         {:noreply, socket}
+    end
+  end
+
+  def handle_event("resolve", %{"question-id" => question_id}, socket) do
+    case Meetings.resolve_question(question_id) do
+      {:ok, %Question{}} ->
+        Phoenix.PubSub.broadcast(
+          ElixirMelbourne.PubSub,
+          "room: #{socket.assigns.room_id}",
+          :question_updated
+        )
+
+        {:noreply, put_flash(socket, :info, "Question resolved")}
+
+      _ ->
+        {:noreply, put_flash(socket, :error, "Oops, something went wrong!")}
+    end
+  end
+
+  def handle_event("vote", %{"question-id" => question_id}, socket) do
+    case Meetings.create_question_vote(%{
+           question_id: question_id,
+           attendee_id: socket.assigns.maybe_attendee_id
+         })
+         |> IO.inspect() do
+      {:ok, %QuestionVote{}} ->
+        Phoenix.PubSub.broadcast(
+          ElixirMelbourne.PubSub,
+          "room: #{socket.assigns.room_id}",
+          :question_updated
+        )
+
+        {:noreply, socket}
+
+      _ ->
+        {:noreply, put_flash(socket, :error, "Oops, something went wrong!")}
+    end
+  end
+
+  def handle_event("unvote", %{"question-id" => question_id}, socket) do
+    with %QuestionVote{} = question_vote <-
+           %{
+             question_id: question_id,
+             attendee_id: socket.assigns.maybe_attendee_id
+           }
+           |> Meetings.get_question_vote_by(),
+         {:ok, %QuestionVote{}} <- Meetings.delete_question_vote(question_vote) do
+      Phoenix.PubSub.broadcast(
+        ElixirMelbourne.PubSub,
+        "room: #{socket.assigns.room_id}",
+        :question_updated
+      )
+
+      {:noreply, socket}
+    else
+      _ ->
+        {:noreply, put_flash(socket, :error, "Oops, something went wrong!")}
     end
   end
 
@@ -63,7 +119,7 @@ defmodule ElixirMelbourneWeb.Meetings.Questions do
     {:noreply, socket |> assign(:attendees, attendees)}
   end
 
-  def handle_info(:new_question, %{assigns: %{room_id: room_id}} = socket) do
+  def handle_info(:question_updated, %{assigns: %{room_id: room_id}} = socket) do
     {:noreply,
      socket
      |> assign(%{
@@ -84,6 +140,23 @@ defmodule ElixirMelbourneWeb.Meetings.Questions do
   end
 
   defp resolve_attendees_from_ids(_, results), do: results
+
+  defp already_vote?(
+         [
+           %QuestionVote{
+             attendee_id: attendee_id
+           }
+           | _
+         ],
+         current_attendee_id
+       )
+       when current_attendee_id == attendee_id,
+       do: true
+
+  defp already_vote?([_ | votes], current_attendee_id),
+    do: already_vote?(votes, current_attendee_id)
+
+  defp already_vote?([], _), do: false
 
   def render(assigns) do
     ~H"""
@@ -109,7 +182,7 @@ defmodule ElixirMelbourneWeb.Meetings.Questions do
             </div>
           </form>
         <% end %>
-        <.form let={f} for={@changeset} phx-submit="submit-question" class="border border-gray-200 dark:border-gray-600 rounded-lg p-4">
+        <.form let={f} for={@changeset} phx-submit="submit" class="border border-gray-200 dark:border-gray-600 rounded-lg p-4">
           <div class="space-y-6">
             <p class="text-xl font-medium">
               Enter your question
@@ -122,13 +195,25 @@ defmodule ElixirMelbourneWeb.Meetings.Questions do
         </.form>
         <div class="space-y-4">
           <%= for question <- @questions do %>
-            <div class="bg-gray-200 dark:bg-gray-600 rounded-lg p-4 space-y-1">
+            <div class={"bg-gray-200 dark:bg-gray-600 rounded-lg p-4 space-y-1"}>
               <p class="font-medium">
                 <%= question.attendee.username %>
               </p>
               <p class="text-gray-600 dark:text-gray-200 text-sm">
                 <%= question.content %>
               </p>
+
+              <%= if !question.resolved_at do %>
+                <button  class="btn bg-blue-500" phx-click="resolve" phx-value-question-id={question.id}>Resolve this question</button>
+              <% else %>
+                <p> This question has been resolved </p>
+              <% end %>
+
+              <%= if already_vote?(question.question_votes, @maybe_attendee_id) do %>
+                <button class="btn" phx-click="unvote" phx-value-question-id={question.id}>Unvote</button>
+              <% else %>
+                <button class="btn" phx-click="vote" phx-value-question-id={question.id}>Vote</button>
+              <% end %>
             </div>
           <% end %>
         </div>

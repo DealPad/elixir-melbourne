@@ -24,7 +24,7 @@ defmodule ElixirMelbourne.Meetings do
   def list_questions_by_room_id(room_id) do
     Question
     |> where([question], question.room_id == ^room_id)
-    |> preload([:attendee])
+    |> preload([:attendee, :question_votes])
     |> Repo.all()
   end
 
@@ -43,6 +43,7 @@ defmodule ElixirMelbourne.Meetings do
 
   """
   def get_question!(id), do: Repo.get!(Question, id)
+  def maybe_get_question(id), do: Repo.get(Question, id)
 
   def room_id_exists?(id) do
     Question
@@ -84,6 +85,12 @@ defmodule ElixirMelbourne.Meetings do
     question
     |> Question.changeset(attrs)
     |> Repo.update()
+  end
+
+  def resolve_question(question_id) do
+    question_id
+    |> maybe_get_question()
+    |> update_question(%{resolved_at: NaiveDateTime.utc_now()})
   end
 
   @doc """
@@ -210,5 +217,102 @@ defmodule ElixirMelbourne.Meetings do
   """
   def change_attendee(%Attendee{} = attendee, attrs \\ %{}) do
     Attendee.changeset(attendee, attrs)
+  end
+
+  alias ElixirMelbourne.Meetings.QuestionVote
+
+  @doc """
+  Returns the list of meetings_questions_votes.
+
+  ## Examples
+
+      iex> list_meetings_questions_votes()
+      [%QuestionVote{}, ...]
+
+  """
+  def list_meetings_questions_votes do
+    Repo.all(QuestionVote)
+  end
+
+  @doc """
+  Gets a single question_vote.
+
+  Raises `Ecto.NoResultsError` if the Question vote does not exist.
+
+  ## Examples
+
+      iex> get_question_vote!(123)
+      %QuestionVote{}
+
+      iex> get_question_vote!(456)
+      ** (Ecto.NoResultsError)
+
+  """
+  def get_question_vote!(id), do: Repo.get!(QuestionVote, id)
+  def get_question_vote_by(attrs), do: Repo.get_by(QuestionVote, attrs)
+
+  @doc """
+  Creates a question_vote.
+
+  ## Examples
+
+      iex> create_question_vote(%{field: value})
+      {:ok, %QuestionVote{}}
+
+      iex> create_question_vote(%{field: bad_value})
+      {:error, %Ecto.Changeset{}}
+
+  """
+  def create_question_vote(attrs \\ %{}) do
+    %QuestionVote{}
+    |> QuestionVote.changeset(attrs)
+    |> Repo.insert()
+  end
+
+  @doc """
+  Updates a question_vote.
+
+  ## Examples
+
+      iex> update_question_vote(question_vote, %{field: new_value})
+      {:ok, %QuestionVote{}}
+
+      iex> update_question_vote(question_vote, %{field: bad_value})
+      {:error, %Ecto.Changeset{}}
+
+  """
+  def update_question_vote(%QuestionVote{} = question_vote, attrs) do
+    question_vote
+    |> QuestionVote.changeset(attrs)
+    |> Repo.update()
+  end
+
+  @doc """
+  Deletes a question_vote.
+
+  ## Examples
+
+      iex> delete_question_vote(question_vote)
+      {:ok, %QuestionVote{}}
+
+      iex> delete_question_vote(question_vote)
+      {:error, %Ecto.Changeset{}}
+
+  """
+  def delete_question_vote(%QuestionVote{} = question_vote) do
+    Repo.delete(question_vote)
+  end
+
+  @doc """
+  Returns an `%Ecto.Changeset{}` for tracking question_vote changes.
+
+  ## Examples
+
+      iex> change_question_vote(question_vote)
+      %Ecto.Changeset{data: %QuestionVote{}}
+
+  """
+  def change_question_vote(%QuestionVote{} = question_vote, attrs \\ %{}) do
+    QuestionVote.changeset(question_vote, attrs)
   end
 end

@@ -40,10 +40,6 @@ if config_env() == :prod do
 
   port = String.to_integer(System.get_env("PORT") || "4000")
 
-  app_name =
-    System.get_env("FLY_APP_NAME") ||
-      raise "FLY_APP_NAME not available"
-
   config :elixir_melbourne, ElixirMelbourneWeb.Endpoint,
     url: [host: "elixirmelbourne.com", port: 80],
     http: [

@@ -27,4 +27,16 @@ defmodule ElixirMelbourne.MeetingsFixtures do
 
     attendee
   end
+
+  @doc """
+  Generate a question_vote.
+  """
+  def question_vote_fixture(attrs \\ %{}) do
+    {:ok, question_vote} =
+      attrs
+      |> Enum.into(%{})
+      |> ElixirMelbourne.Meetings.create_question_vote()
+
+    question_vote
+  end
 end

@@ -171,10 +171,10 @@ defmodule ElixirMelbourneWeb.Meetings.Questions do
         </div>
         <%= if !@maybe_attendee_id do %>
           <div class="fixed inset-0 z-40" aria-labelledby="modal-title" role="dialog" aria-modal="true">
-            <div class="fixed inset-0 bg-cod-gray/30 dark:bg-white/30" />
+            <div class="fixed inset-0 backdrop-blur-md" />
             <div class="flex flex-col items-center p-6 h-full">
               <div class="flex-1" />
-              <div class="overflow-y-auto relative w-full max-w-lg bg-white rounded-lg shadow-lg p-6 space-y-8">
+              <div class="overflow-y-auto relative w-full max-w-lg bg-white dark:bg-cod-gray rounded-lg shadow-lg p-6 space-y-8">
                 <p class="text-xl font-medium">
                   To join this meeting, you must have a username.
                 </p>

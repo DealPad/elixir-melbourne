@@ -178,7 +178,7 @@ defmodule ElixirMelbourneWeb.Meetings.Questions do
                 <p class="text-xl font-medium">
                   To join this meeting, you must have a username.
                 </p>
-                <form phx-hook="SetSession" id="saveUserNameForm">
+                <form method="post" action={Routes.session_path(@socket, :set)}>
                   <div class="flex items-end gap-4">
                     <div class="flex-1 min-w-0">
                       <label for="username" class="block text-sm font-medium">Username</label>
@@ -186,6 +186,7 @@ defmodule ElixirMelbourneWeb.Meetings.Questions do
                         <input type="text" name="username" id="username" class="input" />
                       </div>
                     </div>
+                    <input hidden name="return_to" value={Routes.live_path(@socket, __MODULE__, @room_id)} />
                     <button class="btn" type="submit">Save</button>
                   </div>
                 </form>

@@ -170,17 +170,29 @@ defmodule ElixirMelbourneWeb.Meetings.Questions do
           </p>
         </div>
         <%= if !@maybe_attendee_id do %>
-          <form phx-hook="SetSession" id="saveUserNameForm">
-            <div class="flex items-end gap-4">
-              <div>
-                <label for="username" class="block text-sm font-medium">Username</label>
-                <div class="mt-1">
-                  <input type="text" name="username" id="username" class="input" />
-                </div>
+          <div class="fixed inset-0 z-40" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+            <div class="fixed inset-0 bg-cod-gray/30 dark:bg-white/30" />
+            <div class="flex flex-col items-center p-6 h-full">
+              <div class="flex-1" />
+              <div class="overflow-y-auto relative w-full max-w-lg bg-white rounded-lg shadow-lg p-6 space-y-8">
+                <p class="text-xl font-medium">
+                  To join this meeting, you must have a username.
+                </p>
+                <form phx-hook="SetSession" id="saveUserNameForm">
+                  <div class="flex items-end gap-4">
+                    <div class="flex-1 min-w-0">
+                      <label for="username" class="block text-sm font-medium">Username</label>
+                      <div class="mt-1">
+                        <input type="text" name="username" id="username" class="input" />
+                      </div>
+                    </div>
+                    <button class="btn" type="submit">Save</button>
+                  </div>
+                </form>
               </div>
-              <button class="btn" type="submit">Save</button>
+              <div class="flex-1" />
             </div>
-          </form>
+          </div>
         <% end %>
         <.form let={f} for={@changeset} phx-submit="submit" class="border border-gray-200 dark:border-gray-600 rounded-lg p-4">
           <div class="space-y-6">

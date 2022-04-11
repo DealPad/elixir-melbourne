@@ -26,6 +26,7 @@ defmodule ElixirMelbourne.Meetings do
     |> where([question], question.room_id == ^room_id)
     |> preload([:attendee, :question_votes])
     |> Repo.all()
+    |> Enum.sort_by(&{Enum.count(&1.question_votes)}, :desc)
   end
 
   @doc """

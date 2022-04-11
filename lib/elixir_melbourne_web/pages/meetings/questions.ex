@@ -208,33 +208,57 @@ defmodule ElixirMelbourneWeb.Meetings.Questions do
         </.form>
         <div class="space-y-4">
           <%= for question <- @questions do %>
-            <div class={"bg-gray-200 dark:bg-gray-600 rounded-lg p-4 space-y-1"}>
-              <p class="font-medium">
-                <%= question.attendee.username %>
-              </p>
-              <p class="text-gray-600 dark:text-gray-200 text-sm">
-                <%= question.content %>
-              </p>
+            <div class="bg-gray-200 dark:bg-gray-600 rounded-lg p-4 space-y-4">
+              <div class="space-y-1">
+                <p class="font-medium">
+                  <%= question.attendee.username %>
+                </p>
+                <p class="text-gray-600 dark:text-gray-200 text-sm">
+                  <%= question.content %>
+                </p>
+              </div>
 
-              <%= if !question.resolved_at do %>
-                <button  class="btn bg-blue-500" phx-click="resolve" phx-value-question-id={question.id}>Resolve this question</button>
-              <% else %>
-                <p> This question has been resolved </p>
-              <% end %>
+              <div class="flex items-center gap-4">
+                <%= if !question.resolved_at do %>
+                  <button phx-click="resolve" phx-value-question-id={question.id}>
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                      <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                    </svg>
+                  </button>
+                <% else %>
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-brand" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                  </svg>
+                <% end %>
 
-              <%= if already_vote?(question.question_votes, @maybe_attendee_id) do %>
-                <button class="btn" phx-click="unvote" phx-value-question-id={question.id}>Unvote</button>
-              <% else %>
-                <button class="btn" phx-click="vote" phx-value-question-id={question.id}>Vote</button>
-              <% end %>
+                <%= if already_vote?(question.question_votes, @maybe_attendee_id) do %>
+                  <button phx-click="unvote" phx-value-question-id={question.id}>
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-brand" viewBox="0 0 20 20" fill="currentColor">
+                      <path d="M2 10.5a1.5 1.5 0 113 0v6a1.5 1.5 0 01-3 0v-6zM6 10.333v5.43a2 2 0 001.106 1.79l.05.025A4 4 0 008.943 18h5.416a2 2 0 001.962-1.608l1.2-6A2 2 0 0015.56 8H12V4a2 2 0 00-2-2 1 1 0 00-1 1v.667a4 4 0 01-.8 2.4L6.8 7.933a4 4 0 00-.8 2.4z" />
+                    </svg>
+                  </button>
+                <% else %>
+                  <button phx-click="vote" phx-value-question-id={question.id}>
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                      <path d="M2 10.5a1.5 1.5 0 113 0v6a1.5 1.5 0 01-3 0v-6zM6 10.333v5.43a2 2 0 001.106 1.79l.05.025A4 4 0 008.943 18h5.416a2 2 0 001.962-1.608l1.2-6A2 2 0 0015.56 8H12V4a2 2 0 00-2-2 1 1 0 00-1 1v.667a4 4 0 01-.8 2.4L6.8 7.933a4 4 0 00-.8 2.4z" />
+                    </svg>
+                  </button>
+                <% end %>
+              </div>
             </div>
           <% end %>
         </div>
+        <%= if Enum.count(@attendees) > 0 do %>
+          <div>
+            <p class="text-lg font-medium">People who are in the room:</p>
+            <ol class="list-decimal list-inside">
+              <%= for attendee <- @attendees do %>
+                <li><%= attendee.username %></li>
+              <% end %>
+            </ol>
+          </div>
+        <% end %>
       </div>
-      <h3> People who is in the room: </h3>
-      <%= for attendee <- @attendees do %>
-        <p><%= attendee.username %></p>
-      <% end %>
     """
   end
 end

@@ -168,58 +168,9 @@ defmodule ElixirMelbourneWeb.Meetings.Questions do
           <p>
             You can share this code or this page link to invite others.
           </p>
-          <div class="pt-1">
-            <button phx-click={Phoenix.LiveView.JS.remove_class("hidden", to: "#qrcode-modal")}>
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z" />
-              </svg>
-            </button>
-            <div class="fixed inset-0 z-40 hidden" id="qrcode-modal" aria-labelledby="modal-title" role="dialog" aria-modal="true">
-              <div phx-click={Phoenix.LiveView.JS.add_class("hidden", to: "#qrcode-modal")} phx-key="escape" phx-window-keydown={Phoenix.LiveView.JS.add_class("hidden", to: "#qrcode-modal")} class="fixed inset-0 backdrop-blur-md" />
-              <div class="flex flex-col items-center p-6 h-full">
-                <div class="flex-1" />
-                <div class="overflow-y-auto relative w-full max-w-lg bg-white dark:bg-cod-gray rounded-lg shadow-lg p-6 space-y-8">
-                  <p class="text-xl font-medium text-center">
-                    Room code: <%= @room_id %>
-                  </p>
-                  <div class="flex justify-center items-center">
-                    <%= Routes.live_url(@socket, __MODULE__, @room_id) |> EQRCode.encode() |> EQRCode.svg() |> raw() %>
-                  </div>
-                  <div class="flex justify-center items-center">
-                    <button phx-click={Phoenix.LiveView.JS.add_class("hidden", to: "#qrcode-modal")} class="btn">Close</button>
-                  </div>
-                </div>
-                <div class="flex-1" />
-              </div>
-            </div>
-          </div>
+        <.qrcode room_id={@room_id} socket={@socket}/>
         </div>
-        <%= if !@maybe_attendee_id do %>
-          <div class="fixed inset-0 z-40" aria-labelledby="modal-title" role="dialog" aria-modal="true">
-            <div class="fixed inset-0 backdrop-blur-md" />
-            <div class="flex flex-col items-center p-6 h-full">
-              <div class="flex-1" />
-              <div class="overflow-y-auto relative w-full max-w-lg bg-white dark:bg-cod-gray rounded-lg shadow-lg p-6 space-y-8">
-                <p class="text-xl font-medium">
-                  To join this meeting, you must have a username.
-                </p>
-                <form method="post" action={Routes.session_path(@socket, :set)}>
-                  <div class="flex items-end gap-4">
-                    <div class="flex-1 min-w-0">
-                      <label for="username" class="block text-sm font-medium">Username</label>
-                      <div class="mt-1">
-                        <input type="text" name="username" id="username" class="input" />
-                      </div>
-                    </div>
-                    <input hidden name="return_to" value={Routes.live_path(@socket, __MODULE__, @room_id)} />
-                    <button class="btn" type="submit">Save</button>
-                  </div>
-                </form>
-              </div>
-              <div class="flex-1" />
-            </div>
-          </div>
-        <% end %>
+        <.username maybe_attendee_id={@maybe_attendee_id} socket={@socket} room_id={@room_id} />
         <.form let={f} for={@changeset} phx-submit="submit" class="border border-gray-200 dark:border-gray-600 rounded-lg p-4">
           <div class="space-y-6">
             <p class="text-xl font-medium">
@@ -254,6 +205,67 @@ defmodule ElixirMelbourneWeb.Meetings.Questions do
           </div>
         <% end %>
       </div>
+    """
+  end
+
+  defp username(assigns) do
+    ~H"""
+      <%= if !@maybe_attendee_id do %>
+      <div class="fixed inset-0 z-40" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+        <div class="fixed inset-0 backdrop-blur-md" />
+        <div class="flex flex-col items-center p-6 h-full">
+          <div class="flex-1" />
+          <div class="overflow-y-auto relative w-full max-w-lg bg-white dark:bg-cod-gray rounded-lg shadow-lg p-6 space-y-8">
+            <p class="text-xl font-medium">
+              To join this meeting, please enter your username.
+            </p>
+            <form method="post" action={Routes.session_path(@socket, :set)}>
+              <div class="flex items-end gap-4">
+                <div class="flex-1 min-w-0">
+                  <label for="username" class="block text-sm font-medium">Username</label>
+                  <div class="mt-1">
+                    <input type="text" name="username" id="username" class="input" />
+                  </div>
+                </div>
+                <input hidden name="return_to" value={Routes.live_path(@socket, __MODULE__, @room_id)} />
+                <button class="btn" type="submit">Save</button>
+              </div>
+            </form>
+          </div>
+          <div class="flex-1" />
+        </div>
+      </div>
+    <% end %>
+    """
+  end
+
+  defp qrcode(assigns) do
+    ~H"""
+      <div class="pt-1">
+      <button phx-click={Phoenix.LiveView.JS.remove_class("hidden", to: "#qrcode-modal")}>
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z" />
+        </svg>
+      </button>
+      <div class="fixed inset-0 z-40 hidden" id="qrcode-modal" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+        <div phx-click={Phoenix.LiveView.JS.add_class("hidden", to: "#qrcode-modal")} phx-key="escape" phx-window-keydown={Phoenix.LiveView.JS.add_class("hidden", to: "#qrcode-modal")} class="fixed inset-0 backdrop-blur-md" />
+        <div class="flex flex-col items-center p-6 h-full">
+          <div class="flex-1" />
+          <div class="overflow-y-auto relative w-full max-w-lg bg-white dark:bg-cod-gray rounded-lg shadow-lg p-6 space-y-8">
+            <p class="text-xl font-medium text-center">
+              Room code: <%= @room_id %>
+            </p>
+            <div class="flex justify-center items-center">
+              <%= Routes.live_url(@socket, __MODULE__, @room_id) |> EQRCode.encode() |> EQRCode.svg() |> raw() %>
+            </div>
+            <div class="flex justify-center items-center">
+              <button phx-click={Phoenix.LiveView.JS.add_class("hidden", to: "#qrcode-modal")} class="btn">Close</button>
+            </div>
+          </div>
+          <div class="flex-1" />
+        </div>
+      </div>
+    </div>
     """
   end
 

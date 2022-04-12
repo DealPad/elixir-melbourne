@@ -35,7 +35,7 @@ let liveSocket = new LiveSocket('/live', Socket, {
 
 // Show progress bar on live navigation and form submits
 topbar.config({
-  barColors: { 0: '#5221C3' },
+  barColors: { 0: '#5716C7' },
   shadowColor: 'rgba(0, 0, 0, .3)',
 });
 window.addEventListener('phx:page-loading-start', (info) => topbar.show());

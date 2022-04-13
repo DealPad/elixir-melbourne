@@ -18,6 +18,7 @@ defmodule ElixirMelbourneWeb.HomePage do
           For anyone using or interested in Elixir (with a healthy side dose of Erlang). Welcome to Elixir coders of all levels: dabblers; everyday users; pros.
         </p>
       </div>
+      <img class="rounded-2xl" src={Routes.static_path(@socket, "/images/banner.png")} />
       <div class="space-y-6">
         <h2 class="text-2xl font-bold text-cod-gray dark:text-white">Contributors</h2>
         <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 items-start gap-4">

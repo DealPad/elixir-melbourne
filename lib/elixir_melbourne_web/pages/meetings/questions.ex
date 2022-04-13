@@ -9,19 +9,21 @@ defmodule ElixirMelbourneWeb.Meetings.Questions do
 
   def mount(%{"room_id" => room_id}, params, socket) do
     topic = get_room_topic(room_id)
-    Phoenix.PubSub.subscribe(ElixirMelbourne.PubSub, topic)
-
     maybe_attendee_id = Map.get(params, "attendee_id", nil)
 
-    if maybe_attendee_id do
-      attendee_id = maybe_attendee_id
+    if connected?(socket) do
+      Phoenix.PubSub.subscribe(ElixirMelbourne.PubSub, topic)
 
-      Presence.track(
-        self(),
-        topic,
-        attendee_id,
-        %{}
-      )
+      if maybe_attendee_id do
+        attendee_id = maybe_attendee_id
+
+        Presence.track(
+          self(),
+          topic,
+          attendee_id,
+          %{}
+        )
+      end
     end
 
     {:ok,

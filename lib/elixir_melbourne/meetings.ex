@@ -94,6 +94,12 @@ defmodule ElixirMelbourne.Meetings do
     |> update_question(%{resolved_at: NaiveDateTime.utc_now()})
   end
 
+  def unresolve_question(question_id) do
+    question_id
+    |> maybe_get_question()
+    |> update_question(%{resolved_at: nil})
+  end
+
   @doc """
   Deletes a question.
 

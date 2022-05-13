@@ -66,12 +66,27 @@ defmodule ElixirMelbourneWeb.Meetings.Questions do
     end
   end
 
+  def handle_event("unresolve", %{"question-id" => question_id}, socket) do
+    case Meetings.unresolve_question(question_id) do
+      {:ok, %Question{}} ->
+        Phoenix.PubSub.broadcast(
+          ElixirMelbourne.PubSub,
+          "room: #{socket.assigns.room_id}",
+          :question_updated
+        )
+
+        {:noreply, put_flash(socket, :info, "Question has been unresolved")}
+
+      _ ->
+        {:noreply, put_flash(socket, :error, "Oops, something went wrong!")}
+    end
+  end
+
   def handle_event("vote", %{"question-id" => question_id}, socket) do
     case Meetings.create_question_vote(%{
            question_id: question_id,
            attendee_id: socket.assigns.maybe_attendee_id
-         })
-         |> IO.inspect() do
+         }) do
       {:ok, %QuestionVote{}} ->
         Phoenix.PubSub.broadcast(
           ElixirMelbourne.PubSub,
@@ -291,9 +306,11 @@ defmodule ElixirMelbourneWeb.Meetings.Questions do
               </svg>
             </button>
           <% else %>
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-brand dark:text-brand-200" viewBox="0 0 20 20" fill="currentColor">
-              <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
-            </svg>
+            <button phx-click="unresolve" phx-value-question-id={question.id}>
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-brand dark:text-brand-200" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+              </svg>
+            </button>
           <% end %>
 
           <div class="flex items-center gap-2">

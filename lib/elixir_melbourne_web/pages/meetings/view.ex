@@ -8,6 +8,7 @@ defmodule ElixirMelbourneWeb.Meetings.View do
     socket =
       socket
       |> assign(:active_link, "meetings")
+
     {:ok, socket}
   end
 
